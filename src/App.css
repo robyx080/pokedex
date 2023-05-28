@@ -1,34 +1,76 @@
 .App {
-  text-align: center;
+  min-height: 100vh; /* Imposta l'altezza del componente al 100% dell'altezza della finestra */
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.logo {
+  max-width: 100%;
+  height: 80%;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+@media screen and (max-width: 768px) {
+  .logo {
+    max-width: 50%; 
+    
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+@font-face {
+  font-family: 'Pokemon Solid';
+  src: url('./fonts/Pokemon_Solid.ttf');
 }
 
-.App-link {
-  color: #61dafb;
+.pokemon-link {
+  font-family: 'Pokemon Solid', sans-serif;
+  font-size: 25px!important;
+  -webkit-text-stroke: 2px rgb(0 117 190);/* Bordo blu */
+  -webkit-text-fill-color: rgb(255 204 0); /* Riempimento giallo */
 }
 
-@keyframes App-logo-spin {
+.pokemon-link-dropdown {
+  font-family: 'Pokemon Solid', sans-serif;
+  font-size: 22px!important;
+  -webkit-text-stroke: 2px rgb(0 117 190);/* Bordo blu */
+  -webkit-text-fill-color: rgb(255 204 0); /* Riempimento giallo */
+}
+
+.navbar-toggler {
+  color: rgb(0 117 190)!important;
+  background-color:rgb(255 204 0)!important;
+}
+
+.dropdown-menu.show {
+  background-color: rgb(255 255 255 /55%);
+  border: none;
+  box-shadow: none;
+}
+
+.dropdown-menu {
+  min-width: unset!important;
+}
+
+.dropdown-toggle::after {
+  border-top-color: rgb(0 117 190) !important;
+}
+
+.header{
+  padding-top: 10px;
+}
+
+.pokedex{
+  padding-top: 30px;
+}
+
+.pokeball-loading {
+  animation: spin 1s infinite linear;
+  max-height: 80px; 
+  max-width: 80px;
+}
+
+@keyframes spin {
   from {
     transform: rotate(0deg);
   }
@@ -36,3 +78,62 @@
     transform: rotate(360deg);
   }
 }
+
+.card-header {
+  border-bottom: unset!important;
+  background-color: unset!important;
+}
+
+
+.pokemon-button .btn{
+  font-size: 30px !important;
+  padding-bottom: 20px!important;
+  margin-top: 30px!important;
+  box-shadow: none!important;
+  --bs-btn-border-width: 0px!important;
+}
+
+.pokemon-button-font{
+  font-family: 'Pokemon Solid', sans-serif;
+  font-size: 30px!important;
+  -webkit-text-stroke: 2px rgb(0 117 190);/* Bordo blu */
+  -webkit-text-fill-color: rgb(255 204 0); /* Riempimento giallo */
+}
+
+.footer{
+  padding-top: 100px;
+  padding-bottom: 20px!important;
+}
+
+.footer h1{
+  margin-bottom: 1rem!important;
+}
+
+.footer p{
+  font-size: 33px!important;
+  font-weight: 500!important;
+}
+
+.footer a{
+  text-decoration: none;
+  color: inherit;
+  font-family: 'Pokemon Solid', sans-serif;
+  -webkit-text-stroke: 2px rgb(0 117 190);/* Bordo blu */
+  -webkit-text-fill-color: rgb(255 204 0); /* Riempimento giallo */
+}
+
+
+.footer-font{
+  font-family: 'Pokemon Solid', sans-serif;
+  -webkit-text-stroke: 2px rgb(0 117 190);/* Bordo blu */
+  -webkit-text-fill-color: rgb(255 204 0); /* Riempimento giallo */
+}
+
+.custom-button {
+  transition: transform 0.3s;
+}
+
+.custom-button:active {
+  transform: scale(1.2);
+}
+
