@@ -17,7 +17,6 @@ function App() {
   const saltPokemon=20
   const [pokemon, setPokemon] = useState([]);
   const [visiblePokemon, setVisiblePokemon] = useState(saltPokemon);
-  const [searchQuery, setSearchQuery] = useState("");
   const [searchedPokemon, setSearchedPokemon] = useState(null);
 
   useEffect(() => {
@@ -38,16 +37,20 @@ function App() {
     getPokemon();
   }, []);
   
+
   const handleLoadMore = () => {
     setVisiblePokemon((prevVisiblePokemon) => prevVisiblePokemon + saltPokemon);
   };
 
   const handleSearch = (e) => {
-    setSearchQuery(e.target.value);
     try {
-      const filteredPokemon = pokemon.filter((pk) =>
-        pk.name.toLowerCase().includes(e.target.value.toLowerCase())
-      );
+      const filteredPokemon = pokemon.filter((pk) =>{
+        if(/^\d+$/.test(e.target.value)){     //espressione regolare per solo numeri
+          return pk.id.toString().includes(e.target.value)
+        }else{
+          return pk.name.toLowerCase().includes(e.target.value.toLowerCase())
+        }
+      });
       setSearchedPokemon(filteredPokemon);
       if(filteredPokemon.length===0){
         setSearchedPokemon(['error'])
@@ -62,6 +65,35 @@ function App() {
     }
   }
 
+  const handleSelect = (e) => {
+    const generationRanges = {
+      'Gen 1': [0, 151],
+      'Gen 2': [152, 251],
+      'Gen 3': [252, 386],
+      'Gen 4': [387, 493],
+      'Gen 5': [494, 649],
+      'Gen 6': [650, 721],
+      'Gen 7': [722, 809],
+      'Gen 8': [810, 905],
+      'Gen 9': [906, 1008],
+      'Select Gen': [null, null]
+    }
+    const [startId, endId] = generationRanges[e.target.value] || [null, null];
+    try {
+      if (startId !== null && endId !== null) {
+        const filteredPokemon = pokemon.filter((pk) => {
+          return pk.id >= startId && pk.id <= endId;
+        });
+        setSearchedPokemon(filteredPokemon);
+      }else{
+        setSearchedPokemon(null);
+      }
+    } catch (error) {
+      console.log('Pokemon not found.');
+      setSearchedPokemon(null);
+    }
+  }
+
   return (
     <div className="App" style={{backgroundImage:`url(${background})`}}>
       <NavBar/>
@@ -70,17 +102,33 @@ function App() {
           <Col style={{textAlign:'center'}}><Image src={logo_pokedex} className='logo'/></Col>
         </Row>
         <Row>
-          <Col style={{ textAlign: 'center' }}>
-            <Form className="d-flex justify-content-center">
+          <Col className="d-flex justify-content-center">
+            <Form>
               <Form.Control
                 type="search"
-                placeholder="Search Pokemon"
+                placeholder="Search by name/id"
                 className="me-2 rounded-pill"
-                aria-label="Search"
-                value={searchQuery}
                 onChange={handleSearch}
                 style={{width:'unset'}}
               />
+            </Form>
+            <Form>
+              <Form.Select 
+                className="me-2 rounded-pill"
+                onChange={handleSelect}
+                style={{width:"unset"}}
+              >
+                <option>Select Gen</option>
+                <option>Gen 1</option>
+                <option>Gen 2</option>
+                <option>Gen 3</option>
+                <option>Gen 4</option>
+                <option>Gen 5</option>
+                <option>Gen 6</option>
+                <option>Gen 7</option>
+                <option>Gen 8</option>
+                <option>Gen 9</option>
+              </Form.Select>
             </Form>
           </Col>
         </Row>
@@ -109,7 +157,7 @@ function App() {
               <Row className="justify-content-center">
                 {pokemon.slice(0, visiblePokemon).map((poke, index) => (
                   <Col key={index} xs="auto" className="text-center mb-3">
-                    <CardPoke data={poke} />
+                    <CardPoke data={poke} onClick={() => console.log('ciao')}/>
                   </Col>
                 ))}
               </Row>
@@ -127,7 +175,6 @@ function App() {
             </Row>
           )
         )}
-        
       </Container>
       <Footer/>
     </div>
