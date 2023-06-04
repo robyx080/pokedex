@@ -1,7 +1,7 @@
 import { React } from "react";
 import { Card } from "react-bootstrap"
 import { colorTypeGradients } from '../utils/utils.js';
-import './types.css';
+//import './types.css';
 import error from '../image/missingno.png'
 
 

@@ -23,6 +23,11 @@
   src: url('./fonts/Pokemon_Solid.ttf');
 }
 
+@font-face {
+  font-family: 'Details font';
+  src: url('./fonts/GROBOLD.ttf');
+}
+
 .pokemon-link {
   font-family: 'Pokemon Solid', sans-serif;
   font-size: 25px!important;
@@ -137,3 +142,30 @@
   transform: scale(1.2);
 }
 
+.details-font {
+  font-family: 'Details font', sans-serif;
+  font-size: 14px;
+}
+
+.carousel-item-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+}
+
+.bar-container {
+  width: 100%;
+  height: 20px;
+  background-color: #f0f0f0;
+  padding-right: 100px;
+  border-radius: 50px;
+}
+
+.bar {
+  height: 100%;
+  background-color: #4caf50;
+  border-radius: 50px;
+}
