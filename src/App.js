@@ -21,18 +21,14 @@ function App() {
 
   useEffect(() => {
     const getPokemon = async () => {
-      try {
-        const response = await Poke.getPokemonsList({ limit:1008 });
-        const pokemonNames = response.results.map((pk) => pk.name);
-  
-        const pokemonDetails = await Promise.all(
-          pokemonNames.map((name) => Poke.getPokemonByName(name))
-        );
-  
-        setPokemon(pokemonDetails);
-      } catch (error) {
-        console.log('There was an ERROR: ', error);
-      }
+      const response = await Poke.getPokemonsList({ limit: 1008 });
+      const pokemonNames = response.results.map((pk) => pk.name);
+      const pokemonDetails = await Promise.all(
+        pokemonNames.map((name) => Poke.getPokemonByName(name))
+      );
+
+      setPokemon(pokemonDetails);
+
     };
     getPokemon();
   }, []);
@@ -45,7 +41,7 @@ function App() {
   const handleSearch = (e) => {
     try {
       const filteredPokemon = pokemon.filter((pk) =>{
-        if(/^\d+$/.test(e.target.value)){     //espressione regolare per solo numeri
+        if(/^\d+$/.test(e.target.value)){     //espressione regolare per carcare tramite numero (id)
           return pk.id.toString().includes(e.target.value)
         }else{
           return pk.name.toLowerCase().includes(e.target.value.toLowerCase())

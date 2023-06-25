@@ -1,34 +1,36 @@
 import { React, useState, useEffect } from "react";
 import { Card, Row, Col, Image, Modal,Carousel,Table} from "react-bootstrap"
-import { colorTypeGradients } from '../utils/utils.js';
+import { colorTypeGradients } from '../utils/typesColor.js';
 import typesImage from '../utils/typesImage.js';
 import Pokedex from 'pokedex-promise-v2';
 
 //import './types.css';
 //import infoPokedex from '../image/infoPokedex.png'
+
+// Crea un'istanza del Pokedex
 const Poke = new Pokedex();
 
-
+//componente CardPoke
 function CardPoke(props) {
 
-    //const [hoveredType, setHoveredType] = useState(null);
-    const [showModal, setShowModal] = useState(false);
-    const pk = props;
-    var AllImgTypes = []
-    Object.entries(typesImage).map(([imageName, image]) => (
-        AllImgTypes.push([image, imageName])
-    ))
-    //console.log(AllImgTypes)
-
+    //Stati del componente
+    const [showModal, setShowModal] = useState(false);   //per mostrare o meno il modal
+    
+    //dati singolo pokemon passati come props
+    const pk = props;  
+    
+    //Info pokemon
     const sprite = pk.data.sprites.other["official-artwork"].front_default;
     const spriteShiny = pk.data.sprites.other["official-artwork"].front_shiny;
     const name = pk.data.name;
     const id = pk.data.id;
     const type = pk.data.types
-    const [nameSpecies, setNameSpecies] = useState('');
     const height = pk.data.height/10
     const weight = pk.data.weight/10
     const abilities = pk.data.abilities
+
+    //Stati per i dati del modal
+    const [nameSpecies, setNameSpecies] = useState('');
     const [evYield, setEvYield] = useState([]);
     const [catchRate, setCathRate] = useState('');
     const [baseFriendship, setBaseFriendship] = useState('');
@@ -39,6 +41,7 @@ function CardPoke(props) {
     const [eggCyclesInfo, setEggCyclesInfo] = useState('');
     const [stats,setStats] = useState([])
     
+    //Funzione asincrona per prendere le info del pokemon dall'istanza del Pokedex
     async function getinfo(){
         try {
             const response = await Poke.getPokemonSpeciesByName(name);
@@ -56,13 +59,45 @@ function CardPoke(props) {
             const eggCyclesInfo = response.hatch_counter
             setEggCyclesInfo(eggCyclesInfo);
 
-            const response2 = await Poke.getPokemonByName(name);
-            const evYieldValues = response2.stats
+            //linea evolutiva
+            const evolutionChainUrl = response.evolution_chain.url;
+            const evolutionChainResponse = await fetch(evolutionChainUrl);
+            const evolutionChainData = await evolutionChainResponse.json();
+            const getEvolutionLine = (evolutionData) => {
+                const evolutionChain = [];
+                let currentEvolution = evolutionData;
+              
+                while (currentEvolution) {
+                  const speciesName = currentEvolution.species.name;
+                  const evolutionLevel = currentEvolution.evolves_to.length > 0
+                    ? currentEvolution.evolves_to[0].evolution_details[0].min_level
+                    : null;
+                  
+                  evolutionChain.push([speciesName, evolutionLevel]);
+              
+                  if (currentEvolution.evolves_to.length > 0) {
+                    currentEvolution = currentEvolution.evolves_to[0];
+                  } else {
+                    currentEvolution = null;
+                  }
+                }
+              
+                return evolutionChain;
+              };
+            const evolutionLine = getEvolutionLine(evolutionChainData.chain);
+
+            //console.log(pk.data)
+            //console.log(response)
+            //console.log(evolutionChainData)
+            console.log(evolutionLine)
+
+            const evYieldValues = pk.data.stats
                 .filter(stat => stat.effort !== 0)
                 .map(stat => `${stat.stat.name}: ${stat.effort}`);
             setEvYield(evYieldValues);
-            setBaseExperience(response2.base_experience)
+            setBaseExperience(pk.base_experience)
 
+            //Calcolo le statistiche del Pokémon
             const st = pk.data.stats.map(s=>({
                 name: s.stat.name,
                 base: s.base_stat,
@@ -78,51 +113,46 @@ function CardPoke(props) {
                     ((s.base_stat * 2 + 31 + 63) + 10 + 100) : Math.floor((((s.base_stat * 2) + 31 + 63 + 5)*1.1))
             }))
             setStats(st)
+
+
         } catch (error) {
             console.error(error);
         }
     }
 
 
-
+    //In base al tipo del pokemon mi prendo i colori del tipo e l'immagine
     var imgTypes = []
-
     var colorCard;
-
     if (type.length === 2) {
         colorCard = colorTypeGradients(type[0].type.name, type[1].type.name, type.length);
-        AllImgTypes.forEach((img) => {
-            if (img[1] === `${type[0].type.name}.png`) {
-                imgTypes.push([img[0], type[0].type.name])
-            }
-            if (img[1] === `${type[1].type.name}.png`) {
-                imgTypes.push([img[0], type[1].type.name])
-            }
-        });
+        imgTypes.push([typesImage[type[0].type.name], type[0].type.name])
+        imgTypes.push([typesImage[type[1].type.name], type[1].type.name])
 
     } else {
         colorCard = colorTypeGradients(type[0].type.name, type[0].type.name, type.length);
-        AllImgTypes.forEach((img) => {
-            if (img[1] === `${type[0].type.name}.png`) {
-                imgTypes.push([img[0], type[0].type.name]);
-            }
-        });
+        imgTypes.push([typesImage[type[0].type.name], type[0].type.name])
     }
 
-
+    //funzione per mostrare il modal
     const handleOpenModal = () => {
         setShowModal(true);
     };
 
+    //funzione per chiudere il modal
     const handleCloseModal = () => {
         setShowModal(false);
     };
 
+    //quando viene aperto il modal vengono apportate queste modifiche
     useEffect(() => {
         if (showModal) {
             getinfo();
+            const modalDiv = document.querySelector('.modal-dialog');
+            modalDiv.style.padding = '20px';
             const modalContent = document.querySelector('.modal-content');
             modalContent.style.background = `linear-gradient(${colorCard[0]}, ${colorCard[1]})`;
+            modalContent.style.borderRadius = '50px'
             //modalContent.style.pointerEvents = 'unset'
             const modalHeader = document.querySelector('.modal-header');
             modalHeader.style.borderBottom = 'unset';
@@ -132,13 +162,13 @@ function CardPoke(props) {
             closeModal.style.margin = 'unset';
             const indicatorsCarousel = document.querySelector('.carousel-indicators');
             indicatorsCarousel.style.marginBottom ='-1rem'
+
         }
 
         //per eliminare warning sull'array dipendenze 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [showModal]);
 
-    //console.log(AllImgTypes)
     //ui componente    
     return (
         <>
@@ -171,7 +201,7 @@ function CardPoke(props) {
                 <Modal.Body>
                     <Row >
                         <Col>
-                            <Carousel interval={null} controls={false} indicators >
+                            <Carousel interval={null} controls={true} indicators >
                                 <Carousel.Item>
                                     <div className="text-center">
                                         <Image src={sprite} style={{ maxHeight: '200px', maxWidth: '200px' }} />
@@ -297,11 +327,11 @@ function CardPoke(props) {
                                         <tr key={index}>
                                             <td>{st.name}</td>
                                             <td>{st.base}</td>
-                                            <td>
+                                            <td style={{width:255}}>
                                                 <div className="bar-container">
                                                     <div
                                                         className="bar"
-                                                        style={{ width: `calc((100% / 255) * ${st.base}*2)` }}
+                                                        style={{ width: `calc((100% * ${st.base}/255)` }}
                                                     ></div>
                                                 </div>
                                             </td>
@@ -321,7 +351,16 @@ function CardPoke(props) {
                             <p>The ranges shown on the right are for a level 100 Pokémon. Maximum values are based on a beneficial nature, 252 EVs, 31 IVs; minimum values are based on a hindering nature, 0 EVs, 0 IVs.</p>
                         </Col>
                     </Row>
-
+                    <Row style={{paddingTop:'50px'}}>
+                        <Col className="text-center">
+                            <h1>Evolution chain</h1>
+                        </Col>
+                        <Row>
+                            <Col className="text-center">
+                                ciao
+                            </Col>
+                        </Row>
+                    </Row>
 
                 </Modal.Body>
             </Modal>
