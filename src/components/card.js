@@ -4,9 +4,6 @@ import { colorTypeGradients } from '../utils/typesColor.js';
 import typesImage from '../utils/typesImage.js';
 import Pokedex from 'pokedex-promise-v2';
 
-//import './types.css';
-//import infoPokedex from '../image/infoPokedex.png'
-
 // Crea un'istanza del Pokedex
 const Poke = new Pokedex();
 
@@ -18,7 +15,6 @@ function CardPoke(props) {
     
     //dati singolo pokemon passati come props
     const pk = props;  
-    
     //Info pokemon
     const sprite = pk.data.sprites.other["official-artwork"].front_default;
     const spriteShiny = pk.data.sprites.other["official-artwork"].front_shiny;
@@ -40,7 +36,7 @@ function CardPoke(props) {
     const [genderInfo,setGenderInfo] = useState([])
     const [eggCyclesInfo, setEggCyclesInfo] = useState('');
     const [stats,setStats] = useState([])
-    
+     
     //Funzione asincrona per prendere le info del pokemon dall'istanza del Pokedex
     async function getinfo(){
         try {
@@ -58,38 +54,6 @@ function CardPoke(props) {
             setGenderInfo(genderInfo)
             const eggCyclesInfo = response.hatch_counter
             setEggCyclesInfo(eggCyclesInfo);
-
-            //linea evolutiva
-            const evolutionChainUrl = response.evolution_chain.url;
-            const evolutionChainResponse = await fetch(evolutionChainUrl);
-            const evolutionChainData = await evolutionChainResponse.json();
-            const getEvolutionLine = (evolutionData) => {
-                const evolutionChain = [];
-                let currentEvolution = evolutionData;
-              
-                while (currentEvolution) {
-                  const speciesName = currentEvolution.species.name;
-                  const evolutionLevel = currentEvolution.evolves_to.length > 0
-                    ? currentEvolution.evolves_to[0].evolution_details[0].min_level
-                    : null;
-                  
-                  evolutionChain.push([speciesName, evolutionLevel]);
-              
-                  if (currentEvolution.evolves_to.length > 0) {
-                    currentEvolution = currentEvolution.evolves_to[0];
-                  } else {
-                    currentEvolution = null;
-                  }
-                }
-              
-                return evolutionChain;
-              };
-            const evolutionLine = getEvolutionLine(evolutionChainData.chain);
-
-            //console.log(pk.data)
-            //console.log(response)
-            //console.log(evolutionChainData)
-            console.log(evolutionLine)
 
             const evYieldValues = pk.data.stats
                 .filter(stat => stat.effort !== 0)
@@ -172,6 +136,7 @@ function CardPoke(props) {
     //ui componente    
     return (
         <>
+            {/*singola card pokemon*/}
             <Card style={{ width: '13rem', background: `linear-gradient(${colorCard[0]}, ${colorCard[1]})`, borderRadius: '50px',cursor: 'pointer' }} onClick={handleOpenModal}>
                 <Card.Header className="pokemon-link">
                     {'#' + id}
@@ -191,7 +156,7 @@ function CardPoke(props) {
                 </Card.Body>
             </Card>
 
-
+            {/*Modal quando viene cliccata la card */}
             <Modal show={showModal} onHide={handleCloseModal} centered size="xl" className="details-font">
                 <Modal.Header closeButton>
                     <Modal.Title style={{margin:'auto'}}>
@@ -351,17 +316,6 @@ function CardPoke(props) {
                             <p>The ranges shown on the right are for a level 100 Pokémon. Maximum values are based on a beneficial nature, 252 EVs, 31 IVs; minimum values are based on a hindering nature, 0 EVs, 0 IVs.</p>
                         </Col>
                     </Row>
-                    <Row style={{paddingTop:'50px'}}>
-                        <Col className="text-center">
-                            <h1>Evolution chain</h1>
-                        </Col>
-                        <Row>
-                            <Col className="text-center">
-                                ciao
-                            </Col>
-                        </Row>
-                    </Row>
-
                 </Modal.Body>
             </Modal>
 

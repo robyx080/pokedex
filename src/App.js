@@ -6,38 +6,54 @@ import Pokedex from 'pokedex-promise-v2';
 import logo_pokedex from "./image/Pokedex_logo.png"
 import background from "./image/background.jpg";
 import pokeball from "./image/pokeball.png"
-import NavBar from './components/navbar';
 import CardPoke from './components/card';
 import CardError from './components/cardError';
 import Footer from './components/footer';
 
+// Crea un'istanza del Pokedex
 const Poke = new Pokedex();
 
 function App() {
+
   const saltPokemon=20
+      
+  //Stati del componente
   const [pokemon, setPokemon] = useState([]);
   const [visiblePokemon, setVisiblePokemon] = useState(saltPokemon);
   const [searchedPokemon, setSearchedPokemon] = useState(null);
 
+  //al caricamento della pagina viene effettuata questa funzione per prendere tutti i pokemon
   useEffect(() => {
     const getPokemon = async () => {
-      const response = await Poke.getPokemonsList({ limit: 1008 });
-      const pokemonNames = response.results.map((pk) => pk.name);
-      const pokemonDetails = await Promise.all(
-        pokemonNames.map((name) => Poke.getPokemonByName(name))
-      );
+      try {
+        const response = await Poke.getPokemonsList({ limit: 1008 });
+        const pokemonNames = response.results.map((pk) => pk.name);
+        const pokemonDetails = [];
+        // Suddividi dinamicamente l'array dei nomi dei Pokémon in gruppi di 400 cosi da alleggerire in carico sulle richieste http contemporanee
+        for (let i = 0; i < pokemonNames.length; i += 400) {
+          const group = pokemonNames.slice(i, i + 400);
+          const groupDetails = await Promise.all(
+            group.map((name) => Poke.getPokemonByName(name))
+          );
+          //console.log(groupDetails)
+          pokemonDetails.push(...groupDetails);
+        }
 
-      setPokemon(pokemonDetails);
-
+        setPokemon(pokemonDetails);
+      } catch (error) {
+        console.log(error)
+      }
     };
     getPokemon();
   }, []);
   
-
+  // 1) inizialmente verranno mostrati 20 pokemon
+  // 2) e al click di "carica di più" ne aggiungeremo ulteriori 20
   const handleLoadMore = () => {
     setVisiblePokemon((prevVisiblePokemon) => prevVisiblePokemon + saltPokemon);
   };
 
+  //funzione per cercare un pokemon tramite nome o id
   const handleSearch = (e) => {
     try {
       const filteredPokemon = pokemon.filter((pk) =>{
@@ -61,6 +77,7 @@ function App() {
     }
   }
 
+  //funzione per caricare il pokedex di una gen
   const handleSelect = (e) => {
     const generationRanges = {
       'Gen 1': [0, 151],
@@ -90,11 +107,11 @@ function App() {
     }
   }
 
+  //ui app    
   return (
     <div className="App" style={{backgroundImage:`url(${background})`}}>
-      <NavBar/>
       <Container fluid className='header'>
-        <Row>
+        <Row style={{paddingTop:'20px'}}>
           <Col style={{textAlign:'center'}}><Image src={logo_pokedex} className='logo'/></Col>
         </Row>
         <Row>
@@ -131,7 +148,7 @@ function App() {
       </Container>
       <Container fluid className="pokedex">
 
-        {searchedPokemon ? (
+        {searchedPokemon ? ( 
           searchedPokemon[0] === "error" ? (
             <Row className="justify-content-center">
               <Col xs="auto" className="text-center mb-3">
