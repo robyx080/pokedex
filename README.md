@@ -4,7 +4,7 @@
 
 <h1 align="center">
     <img alt="pokeball"  src="src/image/pokeball.png" style="height: 30px; width: 30px;"> 
-    Pokedex project create with react.js, PokèApi, Bootstrap 
+    Pokedex with react.js, PokèApi, Bootstrap 
     <img alt="pokeball"  src="src/image/pokeball.png" style="height: 30px; width: 30px;">
 </h1>
 
